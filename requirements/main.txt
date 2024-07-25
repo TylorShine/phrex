@@ -1,0 +1,20 @@
+einops
+librosa
+local_attention
+matplotlib
+numpy
+onnx
+onnxruntime
+# onnxruntime-gpu   # for gpu
+# onnxsim
+PyYAML
+pyworld
+resampy
+scikit_learn
+scipy
+SoundFile
+tensorboard
+torchcrepe
+torchfcpe
+tqdm
+transformers

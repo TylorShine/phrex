@@ -1,0 +1,6 @@
+*
+!.gitignore
+!**/.gitkeep
+!pretrained
+!pretrained/rmvpe
+!pretrained/wavlm
