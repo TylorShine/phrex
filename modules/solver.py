@@ -238,7 +238,7 @@ def train(args, initial_global_step, nets_g, loader_train, loader_test):
             loss = loss + (F.l1_loss(signal_std, torch.ones_like(signal_std)) + signal_mean.abs().mean())*0.5
             
             # calc loss for pred_f0
-            loss = loss*0.5 + F.l1_loss(torch.log2(pred_f0), torch.log2(f0))
+            loss = loss*0.5 + F.l1_loss(torch.log2(pred_f0 + 1e-3), torch.log2(f0 + 1e-3))
             
             # handle nan loss
             if torch.isnan(loss):
@@ -289,6 +289,6 @@ def train(args, initial_global_step, nets_g, loader_train, loader_test):
                 
         scheduler.step(loss.item())
                 # scheduler.step()
-        return
+    return
 
                           
