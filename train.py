@@ -39,8 +39,9 @@ if __name__ == '__main__':
             block_size=args.data.block_size,
             in_channels=args.model.in_channels,
             hidden_channels=args.model.hidden_channels,
-            out_channels=args.model.out_channels)
-        # model.compile(mode="reduce-overhead")
+            out_channels=args.model.out_channels,
+            f0_out_channels=args.model.f0_out_channels)
+        model.compile(mode="reduce-overhead")
             
     else:
         raise ValueError(f" [x] Unknown Model: {args.model.type}")

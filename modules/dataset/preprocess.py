@@ -61,6 +61,7 @@ class PreprocessorParameters:
             
         self.spec_extractor = {
             'n_fft': spec_n_fft,
+            'n_mels': spec_out_channels,
             'hop_length': spec_hop_length,
             'sample_rate': sample_rate,
             'device': device,
@@ -73,19 +74,19 @@ PREPROCESSOR_PARAMS: PreprocessorParameters = None
 def preprocess_main(root_path: str, dataset: dict[str, dict[str, str]], params: PreprocessorParameters = PREPROCESSOR_PARAMS):
     data_dir = os.path.join(params.common['data_dir'], 'data')
     
-    # units
-    units_encoder = UnitsEncoder(**params.units_encoder)
-    units_dir = os.path.join(params.common['data_dir'], 'units')
-    for path in tqdm(dataset.keys(), desc='Extract units'):
-        # audio, sr = librosa.load(os.path.join(root_path, path), sr=None)
-        audio, sr = librosa.load(os.path.join(root_path, path), sr=params.common['sample_rate'])
-        units = units_encoder.encode(
-            torch.from_numpy(audio).to(params.common['device'], dtype=torch.float32).unsqueeze(0), sr, params.common['block_size'])
-        units_path = os.path.join(units_dir, os.path.relpath(path, start='data'))
-        os.makedirs(os.path.dirname(units_path), exist_ok=True)
-        np.savez_compressed(f'{units_path}.npz', units=units.squeeze().cpu().numpy())
-    del units_encoder
-    units_encoder = None
+    # # units
+    # units_encoder = UnitsEncoder(**params.units_encoder)
+    # units_dir = os.path.join(params.common['data_dir'], 'units')
+    # for path in tqdm(dataset.keys(), desc='Extract units'):
+    #     # audio, sr = librosa.load(os.path.join(root_path, path), sr=None)
+    #     audio, sr = librosa.load(os.path.join(root_path, path), sr=params.common['sample_rate'])
+    #     units = units_encoder.encode(
+    #         torch.from_numpy(audio).to(params.common['device'], dtype=torch.float32).unsqueeze(0), sr, params.common['block_size'])
+    #     units_path = os.path.join(units_dir, os.path.relpath(path, start='data'))
+    #     os.makedirs(os.path.dirname(units_path), exist_ok=True)
+    #     np.savez_compressed(f'{units_path}.npz', units=units.squeeze().cpu().numpy())
+    # del units_encoder
+    # units_encoder = None
     
     # f0, normalized spectrogram
     if params.f0_extractor is not None:
@@ -103,7 +104,8 @@ def preprocess_main(root_path: str, dataset: dict[str, dict[str, str]], params: 
             spec = spec_extractor.extract(torch.from_numpy(audio).float().to(spec_extractor.device).unsqueeze(0), sample_rate=sr)
             spec = spec.squeeze().cpu().numpy()
             # normalize spec by its max value
-            spec = spec / np.max(spec)
+            # spec: np.ndarray
+            spec = spec / (spec.max((-1,), keepdims=True) + 1e-3)
             
             f0_norm_spec = spec[:, :params.spec_out_channels]
             

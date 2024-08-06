@@ -1,16 +1,18 @@
 import torch
-from torchaudio.transforms import Resample, Spectrogram
+from torchaudio.transforms import Resample, Spectrogram, MelSpectrogram
 
 class SpecExtractor:
-    def __init__(self, n_fft, hop_length, sample_rate, device = None):
+    def __init__(self, n_fft, n_mels, hop_length, sample_rate, device = None):
         if device is None:
             device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.device = device
         self.n_fft = n_fft
+        self.n_mels = n_mels
         self.hop_length = hop_length
         self.sample_rate = sample_rate
         
-        self.spectrogram = Spectrogram(self.n_fft, win_length=self.hop_length, hop_length=self.hop_length, power=1).to(self.device)
+        # self.spectrogram = Spectrogram(self.n_fft, win_length=self.hop_length, hop_length=self.hop_length, center=False, power=1).to(self.device)
+        self.spectrogram = MelSpectrogram(sample_rate, self.n_fft, n_mels=n_mels, win_length=self.hop_length, hop_length=self.hop_length, center=False, power=1, mel_scale='slaney').to(self.device)
         
         self.resample_kernel = {}
         
